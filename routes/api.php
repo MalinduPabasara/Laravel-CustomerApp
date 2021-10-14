@@ -14,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('customers', 'CustomerController@store');
+Route::get('customers', 'CustomerController@index');
+Route::put('customers/{id}', 'CustomerController@update')->where('id', '[0-9]+');
+Route::delete('customers/{id}', 'CustomerController@destroy')->where('id', '[0-9]+');
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
