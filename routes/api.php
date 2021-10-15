@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,12 +14,21 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+//Route::post('/v1/customers', [CustomerController::class, 'store']);
 
 Route::post('customers', 'CustomerController@store');
 Route::get('customers', 'CustomerController@index');
 Route::put('customers/{id}', 'CustomerController@update')->where('id', '[0-9]+');
 Route::delete('customers/{id}', 'CustomerController@destroy')->where('id', '[0-9]+');
 
+Route::group([
+    'prefix' => 'auth'
+], function () {
+    Route::post('login', 'AuthController@login');
+    Route::post('register', 'AuthController@register');
+});
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
