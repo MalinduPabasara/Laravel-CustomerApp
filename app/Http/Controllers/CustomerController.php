@@ -62,17 +62,6 @@ class CustomerController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     * @return Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param Request $request
@@ -89,6 +78,7 @@ class CustomerController extends Controller
             'email' => 'required',
             'birthday' => 'required'
         ]);
+
         $result = $this->customerService->updateCustomer($request, $id);
 
         return fractal($result->unwrap(), new CustomerTransformer)->respond(201);
@@ -104,5 +94,6 @@ class CustomerController extends Controller
     {
         $post = Customer::find($id);
         $post->delete();
+
     }
 }
