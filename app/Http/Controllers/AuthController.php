@@ -2,54 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\support\Facades\Auth;
-use Illuminate\support\Facades\Hash;
-use Carbon\Carbon;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required',
-            'password' => 'required'
+        $fields = $request->validate([
+            'name' => 'required|string|unique:users',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:4|max:12|confirmed'
         ]);
-        $user = new User([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
-        $user->save();
-        return response()->json(['message' => 'User has been registerd'], 200);
 
+        $user = User::create([
+            'name' => $fields['name'],
+            'email' => $fields['email'],
+            'password' => bcrypt($fields['password'])
+        ]);
+
+        $token = $user->createToken('token')->plainTextToken;
+
+        $response = [
+            'user' => $user,
+            'token' => $token
+        ];
+
+        return response($response, 201);
     }
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required',
-            'password' => 'required',
+        $fields = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:4|max:12'
         ]);
 
-        $creadentials = request(['email', 'password']);
+        $user = User::where('email', $fields['email'])->first();
 
-        if (!Auth::attempt($creadentials)) {
-            return response()->json(['message' => 'Cant login'], 401);
+        if (!$user || !Hash::check($fields['password'], $user->password)) {
+            return response(['message' => 'Bad credits'], 401);
         }
-        $user = $request->user();
-        $tokenResult = $user->createTocken('Personal Access Token');
-        $token = $tokenResult->token;
-        $token->expires_at = Carbon::now()->addWeeks(1);
-        $token->save();
 
-        return response()->json(['data' => [
-            'user' => Auth::user(),
-            'access_token' => $tokenResult->accessToken,
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
-        ]]);
+        $token = $user->createToken('token')->plainTextToken;
+
+        $response = [
+            'user' => $user,
+            'token' => $token
+        ];
+
+        return response($response, 201);
     }
+
+    public function logout(): JsonResponse
+    {
+        auth()->user()->tokens()->delete();
+
+        return response()->json('Logged out');
+
+    }
+
 }

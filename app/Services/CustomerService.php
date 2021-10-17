@@ -45,12 +45,4 @@ class CustomerService
 
     }
 
-    /*public function deleteCustomer($id): Request
-    {
-        $customer = Customer::find($id);
-
-        $customer->delete();
-
-        return new ($customer);
-    }*/
 }

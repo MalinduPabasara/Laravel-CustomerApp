@@ -8,7 +8,6 @@ use App\Transformers\CustomerTransformer;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Prewk\Result\ResultException;
 
 class CustomerController extends Controller
@@ -31,7 +30,7 @@ class CustomerController extends Controller
      *
      * @return JsonResponse
      */
-    public function index()
+    public function index(): JsonResponse
     {
         $result = Customer::all();
 
@@ -46,13 +45,13 @@ class CustomerController extends Controller
      * @throws ResultException
      * @throws Exception
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string',
             'address' => 'required',
             'nic' => 'required',
-            'email' => 'required',
+            'email' => 'required|email',
             'birthday' => 'required'
         ]);
 
@@ -69,13 +68,13 @@ class CustomerController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): JsonResponse
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string',
             'address' => 'required',
             'nic' => 'required',
-            'email' => 'required',
+            'email' => 'required|email',
             'birthday' => 'required'
         ]);
 
@@ -88,12 +87,15 @@ class CustomerController extends Controller
      * Remove the specified resource from storage.
      *
      * @param int $id
-     * @return Response
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(int $id): JsonResponse
     {
         $post = Customer::find($id);
+
         $post->delete();
+
+        return response()->json(['message' => 'Customer Deleted'], 201);
 
     }
 }
