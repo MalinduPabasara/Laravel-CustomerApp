@@ -1,2 +1,4 @@
-test 3 
- for test composer install
+test 
+    install npm 
+    check run
+ 
